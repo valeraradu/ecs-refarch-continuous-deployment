@@ -5,7 +5,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Parameters:
   LaunchType:
     Type: String
-    Default: Fargate
+    Default: EC2
     AllowedValues:
       - Fargate
       - EC2
