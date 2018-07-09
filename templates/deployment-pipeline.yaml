@@ -119,6 +119,15 @@ Resources:
         BuildSpec: |
           version: 0.2
           phases:
+            install:
+              commands:
+                - apt-get update -y
+                - apt-get install -y software-properties-common
+                - add-apt-repository ppa:openjdk-r/ppa
+                - apt-get update -y
+                - apt-get install -y openjdk-8-jdk
+                - update-ca-certificates -f -y
+                - /var/lib/dpkg/info/ca-certificates-java.postinst configure
             pre_build:
               commands:
                 - $(aws ecr get-login --no-include-email)
@@ -126,11 +135,12 @@ Resources:
                 - IMAGE_URI="${REPOSITORY_URI}:${TAG}"
             build:
               commands:
-                - docker build --tag "$IMAGE_URI" .
+                - chmod +x gradlew
+                - ./gradlew build docker -Ptag="$IMAGE_URI" -x test
             post_build:
               commands:
                 - docker push "$IMAGE_URI"
-                - printf '[{"name":"simple-app","imageUri":"%s"}]' "$IMAGE_URI" > images.json
+                - printf '[{"name":"superhero-superhero","imageUri":"%s"}]' "$IMAGE_URI" > images.json
           artifacts:
             files: images.json
       Environment:
