@@ -68,7 +68,7 @@ Resources:
             - !Ref SourceSecurityGroup
           Subnets: !Ref Subnets
       LoadBalancers:
-        - ContainerName: simple-app
+        - ContainerName: superhero-superhero
           ContainerPort: 80
           TargetGroupArn: !Ref TargetGroup
 
@@ -81,29 +81,28 @@ Resources:
       TaskDefinition: !Ref TaskDefinition
       LaunchType: EC2
       LoadBalancers:
-        - ContainerName: simple-app
+        - ContainerName: superhero-superhero
           ContainerPort: 80
           TargetGroupArn: !Ref TargetGroup
 
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: !Sub ${AWS::StackName}-simple-app
+      Family: !Sub ${AWS::StackName}-superhero-superhero
       RequiresCompatibilities:
         - !If [ Fargate, "FARGATE", "EC2" ]
-      Memory: 512
+      Memory: 768
       Cpu: 256
       NetworkMode: !If [ Fargate, "awsvpc", "bridge" ]
       ExecutionRoleArn: !Ref TaskExecutionRole
       ContainerDefinitions:
-        - Name: simple-app
+        - Name: superhero-superhero
           Image: amazon/amazon-ecs-sample
-          EntryPoint:
-            - /usr/sbin/apache2
-            - -D
-            - FOREGROUND
           Essential: true
-          Memory: 256
+          Memory: 640
+          Environment:
+            - Name: spring.profiles.active
+              Value: prod
           MountPoints:
             - SourceVolume: my-vol
               ContainerPath: /var/www/my-vol
@@ -121,9 +120,9 @@ Resources:
             - sh
             - -c
           Essential: true
-          Memory: 256
+          Memory: 128
           VolumesFrom:
-            - SourceContainer: simple-app
+            - SourceContainer: superhero-superhero
           Command:
             - /bin/sh -c "while true; do /bin/date > /var/www/my-vol/date; sleep 1; done"
       Volumes:
