@@ -91,7 +91,6 @@ Resources:
       Family: !Sub ${AWS::StackName}-superhero-superhero
       RequiresCompatibilities:
         - !If [ Fargate, "FARGATE", "EC2" ]
-      Memory: 768
       Cpu: 256
       NetworkMode: !If [ Fargate, "awsvpc", "bridge" ]
       ExecutionRoleArn: !Ref TaskExecutionRole
@@ -99,7 +98,7 @@ Resources:
         - Name: superhero-superhero
           Image: amazon/amazon-ecs-sample
           Essential: true
-          Memory: 640
+          MemoryReservation: 256
           Environment:
             - Name: spring.profiles.active
               Value: prod
@@ -120,7 +119,7 @@ Resources:
             - sh
             - -c
           Essential: true
-          Memory: 128
+          MemoryReservation: 128
           VolumesFrom:
             - SourceContainer: superhero-superhero
           Command:

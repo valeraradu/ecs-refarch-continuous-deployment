@@ -1,0 +1,14 @@
+[
+    {
+        "ParameterKey": "GitHubToken",
+        "ParameterValue": "<<super secret token>>"
+    },
+    {
+        "ParameterKey": "GitHubUser",
+        "ParameterValue": "valeraradu"
+    },
+    {
+        "ParameterKey": "KeyName",
+        "ParameterValue": "ecsSuperheroKey"
+    }
+]

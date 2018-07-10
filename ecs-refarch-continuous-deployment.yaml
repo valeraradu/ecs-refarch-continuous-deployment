@@ -22,13 +22,20 @@ Parameters:
       https://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_types.html
       to learn more about launch types.
 
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: ecsSuperheroKey
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+
   GitHubUser:
     Type: String
+    Default: valeraradu
     Description: Your username on GitHub.
 
   GitHubRepo:
     Type: String
-    Default: ecs-demo-php-simple-app
+    Default: superhero
     Description: The repo name of the sample service.
 
   GitHubBranch:
@@ -50,7 +57,7 @@ Parameters:
 
   TemplateUrl:
     Type: String
-    Default: https://raw.githubusercontent.com/valeraradu/ecs-refarch-continuous-deployment/master/templates
+    Default: https://s3.amazonaws.com/cd-pipeline-templates/templates
     Description: >
       The URL from which to fetch the templates used by this stack.
 
@@ -91,6 +98,7 @@ Resources:
     Properties:
       TemplateURL: !Sub "${TemplateUrl}/ecs-cluster.yaml"
       Parameters:
+        KeyName: !Ref KeyName
         LaunchType: !Ref LaunchType
         SourceSecurityGroup: !GetAtt LoadBalancer.Outputs.SecurityGroup
         Subnets: !GetAtt VPC.Outputs.Subnets
@@ -99,7 +107,7 @@ Resources:
   DeploymentPipeline:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "{TemplateUrl}/deployment-pipeline.yaml"
+      TemplateURL: !Sub "${TemplateUrl}/deployment-pipeline.yaml"
       Parameters:
         Cluster: !GetAtt Cluster.Outputs.ClusterName
         Service: !GetAtt Service.Outputs.Service
@@ -111,7 +119,7 @@ Resources:
   LoadBalancer:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "{TemplateUrl}/load-balancer.yaml"
+      TemplateURL: !Sub "${TemplateUrl}/load-balancer.yaml"
       Parameters:
         LaunchType: !Ref LaunchType
         Subnets: !GetAtt VPC.Outputs.Subnets
@@ -120,7 +128,7 @@ Resources:
   VPC:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "{TemplateUrl}/templates/vpc.yaml"
+      TemplateURL: !Sub "${TemplateUrl}/vpc.yaml"
       Parameters:
         Name: !Ref AWS::StackName
         VpcCIDR: 10.215.0.0/16
@@ -130,7 +138,7 @@ Resources:
   Service:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "{TemplateUrl}/templates/service.yaml"
+      TemplateURL: !Sub "${TemplateUrl}/service.yaml"
       Parameters:
         Cluster: !GetAtt Cluster.Outputs.ClusterName
         LaunchType: !Ref LaunchType
